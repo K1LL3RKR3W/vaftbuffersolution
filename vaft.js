@@ -153,6 +153,7 @@ twitch-videoad.js text/javascript
                         }
                         adBlockDiv.P.textContent = 'Blocking ads';
                         adBlockDiv.style.display = 'block';
+                        doTwitchPlayerTask(true, false, false, false, false);
                     } else if (e.data.key == 'HideAdBlockBanner') {
                         if (adBlockDiv == null) {
                             adBlockDiv = getAdBlockDiv();
@@ -921,7 +922,6 @@ twitch-videoad.js text/javascript
             e.stopPropagation();
             e.stopImmediatePropagation();
         };
-        bufferDetection()
         document.addEventListener('visibilitychange', block, true);
         document.addEventListener('webkitvisibilitychange', block, true);
         document.addEventListener('mozvisibilitychange', block, true);
