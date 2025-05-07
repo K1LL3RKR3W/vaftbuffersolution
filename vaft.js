@@ -42,6 +42,14 @@ twitch-videoad.js text/javascript
         'besuper/',// TwitchNoSub (0.9)
         '${patch_url}'// TwitchNoSub (0.9.1)
     ];
+    function bufferDetection() {
+        let bufferCheckInterval = setInterval(bufferCheck,1000);
+        
+        function bufferCheck() {
+            const video = document.createElement("video");
+            console.log(video.currentTime);
+        }
+    }
     function getCleanWorker(worker) {
         var root = null;
         var parent = null;
@@ -913,6 +921,7 @@ twitch-videoad.js text/javascript
             e.stopPropagation();
             e.stopImmediatePropagation();
         };
+        bufferDetection()
         document.addEventListener('visibilitychange', block, true);
         document.addEventListener('webkitvisibilitychange', block, true);
         document.addEventListener('mozvisibilitychange', block, true);
