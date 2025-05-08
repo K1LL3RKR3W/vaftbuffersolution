@@ -138,6 +138,7 @@ twitch-videoad.js text/javascript
                 `;
                 super(URL.createObjectURL(new Blob([newBlobStr])), options);
                 twitchWorkers.push(this);
+                var adStart = null;
                 this.addEventListener('message', (e) => {
                     if (e.data.key == 'ShowAdBlockBanner') {
                         if (adBlockDiv == null) {
@@ -145,11 +146,16 @@ twitch-videoad.js text/javascript
                         }
                         adBlockDiv.P.textContent = 'Blocking ads';
                         adBlockDiv.style.display = 'block';
+                        if (adStart) || (adStart == null) {
+                            adStart = false;
+                            doTwitchPlayerTask(true, false, false, false, false);
+                        }
                     } else if (e.data.key == 'HideAdBlockBanner') {
                         if (adBlockDiv == null) {
                             adBlockDiv = getAdBlockDiv();
                         }
                         adBlockDiv.style.display = 'none';
+                        adStart = true;
                     } else if (e.data.key == 'PauseResumePlayer') {
                         doTwitchPlayerTask(true, false, false, false, false);
                     } else if (e.data.key == 'ForceChangeQuality') {
