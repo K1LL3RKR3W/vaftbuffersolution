@@ -148,14 +148,19 @@ twitch-videoad.js text/javascript
                         adBlockDiv.style.display = 'block';
                         if (adStart) || (adStart == null) {
                             adStart = false;
+                            console.log(adStart);
+                            console.log("in true");
                             doTwitchPlayerTask(true, false, false, false, false);
                         }
+                        console.log("out of true and is blocking??");
                     } else if (e.data.key == 'HideAdBlockBanner') {
                         if (adBlockDiv == null) {
                             adBlockDiv = getAdBlockDiv();
                         }
                         adBlockDiv.style.display = 'none';
                         adStart = true;
+                        console.log("done blocking???");
+                        console.log(adStart);
                     } else if (e.data.key == 'PauseResumePlayer') {
                         doTwitchPlayerTask(true, false, false, false, false);
                     } else if (e.data.key == 'ForceChangeQuality') {
