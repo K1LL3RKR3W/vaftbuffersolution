@@ -138,6 +138,8 @@ twitch-videoad.js text/javascript
                 `;
                 super(URL.createObjectURL(new Blob([newBlobStr])), options);
                 twitchWorkers.push(this);
+                console.log("Creating new AdCheck Var");
+                var adStarted = false;
                 this.addEventListener('message', (e) => {
                     if (e.data.key == 'ShowAdBlockBanner') {
                         if (adBlockDiv == null) {
