@@ -149,6 +149,7 @@ twitch-videoad.js text/javascript
                         adBlockDiv.style.display = 'block';
                         if (adStarted == true) {
                             console.log("BLOCKING ADS???");
+                            doTwitchPlayerTask(true, false, false, false, false);
                             adStarted = false;
                             console.log(adStarted);
                         }
