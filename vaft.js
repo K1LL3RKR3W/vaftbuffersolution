@@ -1,7 +1,8 @@
 twitch-videoad.js text/javascript
 (function() {
     if ( /(^|\.)twitch\.tv$/.test(document.location.hostname) === false ) { return; }
-    var ourTwitchAdSolutionsVersion = 8;// Used to prevent conflicts with outdated versions of the scripts
+    'use strict';
+    var ourTwitchAdSolutionsVersion = 11;// Used to prevent conflicts with outdated versions of the scripts
     if (typeof unsafeWindow === 'undefined') {
         unsafeWindow = window;
     }
@@ -159,8 +160,6 @@ twitch-videoad.js text/javascript
                 `;
                 super(URL.createObjectURL(new Blob([newBlobStr])), options);
                 twitchWorkers.push(this);
-                console.log("Creating new AdCheck var");
-                var adStarted = true;
                 this.addEventListener('message', (e) => {
                     if (e.data.key == 'ShowAdBlockBanner') {
                         if (adBlockDiv == null) {
@@ -168,20 +167,11 @@ twitch-videoad.js text/javascript
                         }
                         adBlockDiv.P.textContent = 'Blocking ads';
                         adBlockDiv.style.display = 'block';
-                        if (adStarted == true) {
-                            console.log("BLOCKING ADS");
-                            doTwitchPlayerTask(true, false, false, false, false);
-                            adStarted = false;
-                            console.log(adStarted)
-                        }
                     } else if (e.data.key == 'HideAdBlockBanner') {
                         if (adBlockDiv == null) {
                             adBlockDiv = getAdBlockDiv();
                         }
                         adBlockDiv.style.display = 'none';
-                        console.log("NOT BLOCKING ADS");
-                        adStarted = true;
-                        console.log(adStarted)
                     } else if (e.data.key == 'PauseResumePlayer') {
                         doTwitchPlayerTask(true, false, false, false, false);
                     } else if (e.data.key == 'ForceChangeQuality') {
@@ -338,12 +328,15 @@ twitch-videoad.js text/javascript
                                 //Here we check the m3u8 for any ads and also try fallback player types if needed.
                                 var responseText = await response.text();
                                 var weaverText = null;
-                                weaverText = await processM3U8(url, responseText, realFetch, PlayerType2);
+                                var fallbackWeaverText = weaverText = await processM3U8(url, responseText, realFetch, PlayerType2);
                                 if (weaverText.includes(AdSignifier)) {
                                     weaverText = await processM3U8(url, responseText, realFetch, PlayerType3);
                                 }
                                 if (weaverText.includes(AdSignifier)) {
                                     weaverText = await processM3U8(url, responseText, realFetch, PlayerType4);
+                                }
+                                if (weaverText.includes(AdSignifier)) {
+                                    weaverText = fallbackWeaverText;
                                 }
                                 resolve(new Response(weaverText));
                             } else {
@@ -699,7 +692,7 @@ twitch-videoad.js text/javascript
     }
     function getAccessToken(channelName, playerType) {
         var body = null;
-        var templateQuery = 'query PlaybackAccessToken_Template($login: String!, $isLive: Boolean!, $vodID: ID!, $isVod: Boolean!, $playerType: String!) {  streamPlaybackAccessToken(channelName: $login, params: {platform: "ios", playerBackend: "mediaplayer", playerType: $playerType}) @include(if: $isLive) {    value    signature    __typename  }  videoPlaybackAccessToken(id: $vodID, params: {platform: "ios", playerBackend: "mediaplayer", playerType: $playerType}) @include(if: $isVod) {    value    signature    __typename  }}';
+        var templateQuery = 'query PlaybackAccessToken_Template($login: String!, $isLive: Boolean!, $vodID: ID!, $isVod: Boolean!, $playerType: String!) {  streamPlaybackAccessToken(channelName: $login, params: {platform: "android", playerBackend: "mediaplayer", playerType: $playerType}) @include(if: $isLive) {    value    signature    __typename  }  videoPlaybackAccessToken(id: $vodID, params: {platform: "android", playerBackend: "mediaplayer", playerType: $playerType}) @include(if: $isVod) {    value    signature    __typename  }}';
         body = {
             operationName: 'PlaybackAccessToken_Template',
             query: templateQuery,
@@ -1030,6 +1023,7 @@ twitch-videoad.js text/javascript
             });
         }catch{}
         let hidden = document.__lookupGetter__('hidden');
+        let webkitHidden = document.__lookupGetter__('webkitHidden');
         try {
             Object.defineProperty(document, 'hidden', {
                 get() {
@@ -1047,7 +1041,7 @@ twitch-videoad.js text/javascript
             if (typeof chrome !== 'undefined') {
                 const videos = document.getElementsByTagName('video');
                 if (videos.length > 0) {
-                    if (hidden.apply(document) === true) {
+                    if (hidden.apply(document) === true || (webkitHidden && webkitHidden.apply(document) === true)) {
                         wasVideoPlaying = !videos[0].paused && !videos[0].ended;
                     } else if (wasVideoPlaying && !videos[0].ended) {
                         videos[0].play();
