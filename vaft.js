@@ -181,6 +181,8 @@ twitch-videoad.js text/javascript
                 `;
                 super(URL.createObjectURL(new Blob([newBlobStr])), options);
                 twitchWorkers.push(this);
+                console.log("Creating new AdCheck var");
+                var adStarted = true;
                 this.addEventListener('message', (e) => {
                     if (e.data.key == 'ShowAdBlockBanner') {
                         if (adBlockDiv == null) {
@@ -190,6 +192,12 @@ twitch-videoad.js text/javascript
                             adBlockDiv.P.textContent = 'Blocking' + (e.data.isMidroll ? ' midroll' : '') + ' ads';
                             adBlockDiv.style.display = 'block';
                         }
+                         if (adStarted == true) {
+                            console.log("BLOCKING ADS");
+                            doTwitchPlayerTask(true, false, false, false, false);
+                            adStarted = false;
+                            console.log(adStarted)
+                        }
                     } else if (e.data.key == 'HideAdBlockBanner') {
                         if (adBlockDiv == null) {
                             adBlockDiv = getAdBlockDiv();
@@ -197,6 +205,9 @@ twitch-videoad.js text/javascript
                         if (adBlockDiv != null) {
                             adBlockDiv.style.display = 'none';
                         }
+                        console.log("NOT BLOCKING ADS");
+                        adStarted = true;
+                        console.log(adStarted)
                     } else if (e.data.key == 'PauseResumePlayer') {
                         doTwitchPlayerTask(true, false);
                     } else if (e.data.key == 'ReloadPlayer') {
@@ -905,3 +916,4 @@ twitch-videoad.js text/javascript
         postTwitchWorkerMessage('SimulateAds', depth);
     };
 })();
+
